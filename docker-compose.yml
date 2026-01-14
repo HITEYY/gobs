@@ -9,12 +9,12 @@ services:
         VERSION: 1.0.0-alpha
         GIT_COMMIT: ${GIT_COMMIT:-unknown}
         GIT_DATE: ${GIT_DATE:-unknown}
-    image: obsidian-chain/obsidian:latest
+    image: yuchanshin/obsidian-node:latest
     container_name: obsidian-node
     restart: unless-stopped
     ports:
-      - "30303:30303/tcp"     # P2P TCP
-      - "30303:30303/udp"     # P2P UDP
+      - "8333:8333/tcp"       # P2P TCP
+      - "8333:8333/udp"       # P2P UDP
       - "8545:8545/tcp"       # HTTP RPC
       - "8546:8546/tcp"       # WebSocket RPC
     volumes:
@@ -51,15 +51,17 @@ services:
     build:
       context: .
       dockerfile: obsidian/Dockerfile
-    image: obsidian-chain/obsidian:latest
+    image: yuchanshin/obsidian-node:latest
     container_name: obsidian-miner
     restart: unless-stopped
     ports:
-      - "8334:8333/tcp"
-      - "8334:8333/udp"
-      - "8547:8545/tcp"
+      - "8334:8333/tcp"       # P2P TCP (different host port)
+      - "8334:8333/udp"       # P2P UDP
+      - "8547:8545/tcp"       # HTTP RPC
     volumes:
       - obsidian-miner-data:/data
+    environment:
+      - OBSIDIAN_DATADIR=/data
     command:
       - run
       - --datadir=/data
@@ -67,12 +69,18 @@ services:
       - --http.addr=0.0.0.0
       - --http.port=8545
       - --mine
-      - --port=30303
+      - --port=8333
+      - --maxpeers=50
       - --verbosity=3
     depends_on:
       - obsidian
     profiles:
       - mining
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "3"
 
 volumes:
   obsidian-data:
@@ -83,4 +91,3 @@ volumes:
 networks:
   default:
     name: obsidian-network
-
