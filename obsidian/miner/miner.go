@@ -79,12 +79,14 @@ type Miner struct {
 
 	// Mining state
 	running    int32 // atomic
+	mining     int32 // atomic - tracks if actively mining
 	coinbase   common.Address
 	extraData  []byte
 
 	// Work state
 	currentWork *Work
 	workMu      sync.Mutex
+	abortCh     chan struct{} // Channel to abort current mining
 
 	// Channels
 	startCh chan struct{}
@@ -142,8 +144,9 @@ func New(config *Config, backend Backend, engine *obsidianash.ObsidianAsh) *Mine
 		stopCh:      make(chan struct{}),
 		exitCh:      make(chan struct{}),
 		newWorkCh:   make(chan *Work),
-		resultCh:    make(chan *obstypes.ObsidianBlock),
+		resultCh:    make(chan *obstypes.ObsidianBlock, 1),
 		chainHeadCh: make(chan ChainHeadEvent, 10),
+		abortCh:     make(chan struct{}),
 	}
 
 	// Subscribe to chain head events
@@ -231,6 +234,12 @@ func (m *Miner) commit() {
 	m.workMu.Lock()
 	defer m.workMu.Unlock()
 
+	// Abort any previous mining operation
+	if atomic.LoadInt32(&m.mining) == 1 {
+		close(m.abortCh)
+		m.abortCh = make(chan struct{})
+	}
+
 	parent := m.backend.CurrentBlock()
 	if parent == nil {
 		log.Error("Current block is nil")
@@ -260,27 +269,37 @@ func (m *Miner) commit() {
 		CreatedAt: time.Now(),
 	}
 
-	// Start mining in background
-	go m.mine(work)
+	m.currentWork = work
+
+	// Start mining with current abort channel
+	go m.mine(work, m.abortCh)
 }
 
 // mine performs the actual PoW mining
-func (m *Miner) mine(work *Work) {
+func (m *Miner) mine(work *Work, abort chan struct{}) {
 	if atomic.LoadInt32(&m.running) != 1 {
 		return
 	}
+
+	// Mark as mining
+	if !atomic.CompareAndSwapInt32(&m.mining, 0, 1) {
+		return // Another mining operation is in progress
+	}
+	defer atomic.StoreInt32(&m.mining, 0)
 
 	// Prepare block for sealing
 	block := obstypes.NewBlock(work.Header, work.Txs, nil, nil)
 
 	// Seal the block using our internal sealer
-	resultCh := make(chan *obstypes.ObsidianBlock)
-	stopCh := make(chan struct{})
+	resultCh := make(chan *obstypes.ObsidianBlock, 1)
 
 	go func() {
-		sealedBlock := sealBlock(block, stopCh)
+		sealedBlock := sealBlock(block, abort)
 		if sealedBlock != nil {
-			resultCh <- sealedBlock
+			select {
+			case resultCh <- sealedBlock:
+			default:
+			}
 		}
 		close(resultCh)
 	}()
@@ -288,12 +307,18 @@ func (m *Miner) mine(work *Work) {
 	select {
 	case result := <-resultCh:
 		if result != nil {
-			m.resultCh <- result
+			select {
+			case m.resultCh <- result:
+			case <-abort:
+				return
+			}
 		}
 	case <-m.stopCh:
-		close(stopCh)
+		return
 	case <-m.exitCh:
-		close(stopCh)
+		return
+	case <-abort:
+		return
 	}
 }
 
