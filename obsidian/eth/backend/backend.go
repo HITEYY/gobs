@@ -49,8 +49,9 @@ type Backend struct {
 	txLookup map[common.Hash]*txLookupEntry
 
 	// Events
-	chainHeadFeed event.Feed
-	scope         event.SubscriptionScope
+	chainHeadFeed     event.Feed
+	minedBlockFeed    event.Feed  // For broadcasting mined blocks
+	scope             event.SubscriptionScope
 
 	// Shutdown
 	shutdownCh chan struct{}
@@ -424,13 +425,26 @@ func (b *Backend) InsertBlock(block *obstypes.ObsidianBlock) error {
 	// Notify subscribers
 	b.chainHeadFeed.Send(miner.ChainHeadEvent{Block: block})
 
-	log.Info("New block inserted",
+	// Broadcast to peers
+	b.minedBlockFeed.Send(MinedBlockEvent{Block: block})
+
+	log.Info("New block inserted and broadcasted",
 		"number", block.NumberU64(),
 		"hash", hash.Hex(),
 		"txs", len(block.Transactions()),
 	)
 
 	return nil
+}
+
+// MinedBlockEvent is sent when a block is mined and ready to broadcast
+type MinedBlockEvent struct {
+	Block *obstypes.ObsidianBlock
+}
+
+// SubscribeMinedBlockEvent subscribes to mined block events for broadcasting
+func (b *Backend) SubscribeMinedBlockEvent(ch chan<- MinedBlockEvent) event.Subscription {
+	return b.scope.Track(b.minedBlockFeed.Subscribe(ch))
 }
 
 // GetEngine returns the consensus engine

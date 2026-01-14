@@ -59,6 +59,9 @@ type Backend interface {
 	// Transaction pool methods
 	PendingTransactions(enforceTips bool) map[common.Address][]*obstypes.StealthTransaction
 
+	// Block insertion
+	InsertBlock(block *obstypes.ObsidianBlock) error
+
 	// Event subscription
 	SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Subscription
 }
@@ -199,15 +202,23 @@ func (m *Miner) resultLoop() {
 				continue
 			}
 
-			log.Info("Successfully mined block",
+			// Insert block into chain
+			if err := m.backend.InsertBlock(block); err != nil {
+				log.Error("Failed to insert mined block", "error", err)
+				continue
+			}
+
+			log.Info("Successfully mined and inserted block",
 				"number", block.NumberU64(),
 				"hash", block.Hash().Hex(),
 				"txs", len(block.Transactions()),
+				"difficulty", block.Difficulty(),
 			)
 
 			atomic.AddUint64(&m.minedBlocks, 1)
 
-			// TODO: Insert block into chain and broadcast
+			// Create new work for next block
+			m.commit()
 
 		case <-m.exitCh:
 			return
