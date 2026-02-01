@@ -59,3 +59,4 @@ require (
 	golang.org/x/sys v0.36.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+replace github.com/ethereum/go-ethereum => ../go-ethereum
