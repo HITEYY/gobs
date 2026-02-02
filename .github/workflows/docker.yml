@@ -184,9 +184,9 @@ jobs:
 
           # Start node and check health
           docker run -d --name obsidian-test \
-            -p 8545:8545 \
+            --network host \
             ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }} \
-            run --datadir /data --http --http.addr 0.0.0.0
+            run --datadir /data --http --http.addr 0.0.0.0 --http.port 8545
 
           # Wait for startup
           sleep 30
