@@ -157,7 +157,7 @@ jobs:
           vuln-type: 'os,library'
 
       - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
@@ -189,12 +189,12 @@ jobs:
             run --datadir /data --http --http.addr 0.0.0.0
 
           # Wait for startup
-          sleep 15
+          sleep 20
 
-          # JSON-RPC check (replaces health check as node doesn't have /health)
+          # Health check (JSON-RPC check)
           curl -sf -X POST -H "Content-Type: application/json" \
             --data '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}' \
-            http://localhost:8545 | grep -q "jsonrpc"
+            http://localhost:8545 | grep -q "jsonrpc" || (docker logs obsidian-test && exit 1)
 
           # Cleanup
           docker stop obsidian-test
