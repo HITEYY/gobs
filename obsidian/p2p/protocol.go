@@ -144,6 +144,7 @@ type Handler struct {
 	syncing      int32
 	syncTarget   *Peer
 	synchronizer *Synchronizer
+	downloader   *Downloader
 
 	// Pending blocks (blocks waiting for parent to arrive)
 	pendingBlocks   map[common.Hash]*obstypes.ObsidianBlock // parentHash -> block
@@ -220,7 +221,7 @@ func (k *knownCache) Has(hash common.Hash) bool {
 
 // NewHandler creates a new P2P handler
 func NewHandler(networkID uint64, backend Backend) *Handler {
-	return &Handler{
+	h := &Handler{
 		networkID:       networkID,
 		backend:         backend,
 		genesisHash:     backend.GenesisHash(),
@@ -230,6 +231,8 @@ func NewHandler(networkID uint64, backend Backend) *Handler {
 		quitCh:          make(chan struct{}),
 		blockAnnounceCh: make(chan *obstypes.ObsidianBlock, 10),
 	}
+	h.downloader = NewDownloader(backend, h)
+	return h
 }
 
 // SetBackend sets the backend (for delayed initialization)
@@ -240,11 +243,16 @@ func (h *Handler) SetBackend(backend Backend) {
 
 // SetSynchronizer sets the blockchain synchronizer
 func (h *Handler) SetSynchronizer(sync *Synchronizer) {
+	// Synchronizer is deprecated in favor of Downloader
 	h.synchronizer = sync
 }
 
 // StartSync starts the blockchain synchronizer
 func (h *Handler) StartSync() error {
+	if h.downloader != nil {
+		h.downloader.Start()
+		return nil
+	}
 	if h.synchronizer == nil {
 		h.synchronizer = NewSynchronizer(h.backend, h)
 	}
@@ -253,6 +261,9 @@ func (h *Handler) StartSync() error {
 
 // StopSync stops the blockchain synchronizer
 func (h *Handler) StopSync() {
+	if h.downloader != nil {
+		h.downloader.Stop()
+	}
 	if h.synchronizer != nil {
 		h.synchronizer.Stop()
 	}
@@ -260,6 +271,10 @@ func (h *Handler) StopSync() {
 
 // SyncProgress returns the current sync progress
 func (h *Handler) SyncProgress() (start, current, target uint64, syncing bool) {
+	if h.downloader != nil {
+		p := h.downloader.Progress()
+		return p.StartingBlock, p.CurrentBlock, p.HighestBlock, p.Syncing
+	}
 	if h.synchronizer != nil {
 		return h.synchronizer.Progress()
 	}
@@ -445,7 +460,11 @@ func (h *Handler) registerPeer(p *Peer) error {
 	)
 
 	// Trigger sync if peer has higher TD
-	go h.checkSync(p)
+	if h.downloader != nil {
+		go h.downloader.CheckAndSync()
+	} else {
+		go h.checkSync(p)
+	}
 
 	return nil
 }
@@ -634,7 +653,9 @@ func (h *Handler) handleBlockHeaders(p *Peer, msg p2p.Msg) error {
 	}
 
 	log.Debug("Received block headers", "peer", p.id[:16], "count", len(headers))
-	// Process headers for sync
+	if h.downloader != nil {
+		h.downloader.DeliverHeaders(p, headers)
+	}
 	return nil
 }
 
@@ -667,6 +688,9 @@ func (h *Handler) handleBlockBodies(p *Peer, msg p2p.Msg) error {
 	}
 
 	log.Debug("Received block bodies", "peer", p.id[:16], "count", len(bodies))
+	if h.downloader != nil {
+		h.downloader.DeliverBodies(p, bodies)
+	}
 	return nil
 }
 

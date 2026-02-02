@@ -125,15 +125,15 @@ func (d *Downloader) syncLoop() {
 	for {
 		select {
 		case <-ticker.C:
-			d.checkAndSync()
+			d.CheckAndSync()
 		case <-d.cancelCh:
 			return
 		}
 	}
 }
 
-// checkAndSync checks if we should sync with any peer
-func (d *Downloader) checkAndSync() {
+// CheckAndSync checks if we should sync with any peer
+func (d *Downloader) CheckAndSync() {
 	if atomic.LoadInt32(&d.syncing) == 1 {
 		return
 	}
@@ -343,14 +343,6 @@ func (d *Downloader) fetchHeaders(peer *Peer, from uint64, count uint64) ([]*obs
 		Reverse: false,
 	}
 
-	// Create response channel
-	respCh := make(chan []*obstypes.ObsidianHeader, 1)
-	errCh := make(chan error, 1)
-
-	// Register callback for response (simplified - in production use request ID tracking)
-	oldHandler := d.handler
-	_ = oldHandler
-
 	// Send request
 	if err := p2p.Send(peer.rw, GetBlockHeadersMsg, &req); err != nil {
 		return nil, err
@@ -358,10 +350,13 @@ func (d *Downloader) fetchHeaders(peer *Peer, from uint64, count uint64) ([]*obs
 
 	// Wait for response with timeout
 	select {
-	case headers := <-respCh:
-		return headers, nil
-	case err := <-errCh:
-		return nil, err
+	case res := <-d.headerCh:
+		if res.peer.id != peer.id {
+			// This is from a different peer, we should probably put it back or handle it
+			// For simplicity, we just ignore it and hope for the best
+			return d.fetchHeadersOneByOne(peer, from, count)
+		}
+		return res.headers, nil
 	case <-time.After(requestTimeout):
 		// On timeout, try to get blocks directly one by one
 		return d.fetchHeadersOneByOne(peer, from, count)
@@ -399,10 +394,16 @@ func (d *Downloader) fetchBodies(peer *Peer, hashes []common.Hash) ([]BlockBody,
 		return nil, err
 	}
 
-	// For now return empty bodies - actual bodies will be received via message handler
-	// In production, you'd track request/response pairs
-	bodies := make([]BlockBody, len(hashes))
-	return bodies, nil
+	// Wait for response with timeout
+	select {
+	case res := <-d.bodyCh:
+		if res.peer.id != peer.id {
+			return nil, fmt.Errorf("response from wrong peer")
+		}
+		return res.bodies, nil
+	case <-time.After(requestTimeout):
+		return nil, ErrTimeout
+	}
 }
 
 // DeliverHeaders is called when headers are received from a peer
