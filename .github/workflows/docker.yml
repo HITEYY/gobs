@@ -150,7 +150,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.DOCKERHUB_REPO }}:sha-${{ github.sha }}'
+          image-ref: 'ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
@@ -174,18 +174,18 @@ jobs:
 
       - name: Pull and test image
         run: |
-          docker pull ${{ env.DOCKERHUB_REPO }}:sha-${{ github.sha }}
+          docker pull ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }}
 
           # Test help command
-          docker run --rm ${{ env.DOCKERHUB_REPO }}:sha-${{ github.sha }} --help
+          docker run --rm ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }} --help
 
           # Test version command
-          docker run --rm ${{ env.DOCKERHUB_REPO }}:sha-${{ github.sha }} version
+          docker run --rm ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }} version
 
           # Start node and check health
           docker run -d --name obsidian-test \
             -p 8545:8545 \
-            ${{ env.DOCKERHUB_REPO }}:sha-${{ github.sha }} \
+            ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }} \
             run --datadir /data --http --http.addr 0.0.0.0
 
           # Wait for startup
