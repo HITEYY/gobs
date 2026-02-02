@@ -189,12 +189,9 @@ jobs:
             run --datadir /data --http --http.addr 0.0.0.0
 
           # Wait for startup
-          sleep 10
+          sleep 15
 
-          # Health check
-          curl -sf http://localhost:8545/health || (docker logs obsidian-test && exit 1)
-
-          # JSON-RPC check
+          # JSON-RPC check (replaces health check as node doesn't have /health)
           curl -sf -X POST -H "Content-Type: application/json" \
             --data '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}' \
             http://localhost:8545 | grep -q "jsonrpc"
