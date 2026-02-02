@@ -189,12 +189,24 @@ jobs:
             run --datadir /data --http --http.addr 0.0.0.0
 
           # Wait for startup
-          sleep 20
+          sleep 30
 
           # Health check (JSON-RPC check)
-          curl -sf -X POST -H "Content-Type: application/json" \
+          # We check multiple times with a small delay to handle slow startup
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+          until curl -sf -X POST -H "Content-Type: application/json" \
             --data '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}' \
-            http://localhost:8545 | grep -q "jsonrpc" || (docker logs obsidian-test && exit 1)
+            http://localhost:8545 | grep -q "jsonrpc"; do
+            RETRY_COUNT=$((RETRY_COUNT+1))
+            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+              echo "Health check failed after $MAX_RETRIES retries"
+              docker logs obsidian-test
+              exit 1
+            fi
+            echo "Waiting for node to be ready (retry $RETRY_COUNT/$MAX_RETRIES)..."
+            sleep 10
+          done
 
           # Cleanup
           docker stop obsidian-test
