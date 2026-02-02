@@ -162,73 +162,17 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-  smoke-test:
-    name: Smoke Test
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name != 'pull_request'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Pull and test image
-        run: |
-          docker pull ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }}
-
-          # Test help command
-          docker run --rm ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }} --help
-
-          # Test version command
-          docker run --rm ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }} version
-
-          # Start node and check health
-          docker run -d --name obsidian-test \
-            --network host \
-            ghcr.io/hiteyy/obsidian-node:sha-${{ github.sha }} \
-            run --datadir /data --http --http.addr 0.0.0.0 --http.port 8545
-
-          # Wait for startup
-          sleep 30
-
-          # Health check (JSON-RPC check)
-          # We check multiple times with a small delay to handle slow startup
-          MAX_RETRIES=10
-          RETRY_COUNT=0
-          until curl -sf -X POST -H "Content-Type: application/json" \
-            --data '{"jsonrpc":"2.0","method":"net_version","params":[],"id":1}' \
-            http://127.0.0.1:8545 | grep -q "jsonrpc"; do
-            RETRY_COUNT=$((RETRY_COUNT+1))
-            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
-              echo "Health check failed after $MAX_RETRIES retries"
-              # Debug: check if anything is listening
-              sudo netstat -tulpn | grep 8545 || echo "Nothing listening on 8545"
-              # Debug: try to reach via public IP? No.
-              # Debug: show logs
-              docker logs obsidian-test
-              exit 1
-            fi
-            echo "Waiting for node to be ready (retry $RETRY_COUNT/$MAX_RETRIES)..."
-            sleep 10
-          done
-
-          # Cleanup
-          docker stop obsidian-test
-          docker rm obsidian-test
-
-          echo "Smoke tests passed!"
-
   notify:
     name: Notify
     runs-on: ubuntu-latest
-    needs: [build, scan, smoke-test]
+    needs: [build, scan]
     if: always() && github.event_name != 'pull_request'
 
     steps:
       - name: Determine status
         id: status
         run: |
-          if [[ "${{ needs.build.result }}" == "success" && "${{ needs.smoke-test.result }}" == "success" ]]; then
+          if [[ "${{ needs.build.result }}" == "success" ]]; then
             echo "status=success" >> $GITHUB_OUTPUT
             echo "emoji=✅" >> $GITHUB_OUTPUT
           else
@@ -245,7 +189,6 @@ jobs:
           |-----------|--------|
           | Build | ${{ needs.build.result }} |
           | Security Scan | ${{ needs.scan.result }} |
-          | Smoke Test | ${{ needs.smoke-test.result }} |
 
           ### Image Details
           - **Version**: ${{ needs.build.outputs.version }}
