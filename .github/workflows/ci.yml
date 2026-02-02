@@ -110,9 +110,11 @@ jobs:
         run: go mod download
 
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@v2.22.1
-        with:
-          args: -exclude-dir=go-ethereum ./obsidian/...
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.22.1
+          export PATH=$PATH:$(go env GOPATH)/bin
+          cd obsidian
+          gosec -exclude-dir=go-ethereum ./...
 
       - name: Run Trivy vulnerability scanner (filesystem)
         uses: aquasecurity/trivy-action@master

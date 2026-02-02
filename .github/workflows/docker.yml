@@ -131,7 +131,7 @@ jobs:
         if: github.event_name != 'pull_request' && steps.build.outputs.digest != ''
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: index.docker.io/${{ env.DOCKERHUB_REPO }}
+          subject-name: ${{ env.GHCR_REPO }}
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
 
