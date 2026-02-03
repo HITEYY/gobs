@@ -252,10 +252,14 @@ func runNode(ctx *cli.Context) error {
 
 	// Start mining if enabled
 	if ctx.Bool(minerEnabledFlag.Name) {
-		log.Info("Starting miner")
-		if err := b.StartMining(); err != nil {
-			log.Error("Failed to start miner", "error", err)
-		}
+		log.Info("Starting miner (with delay to ensure P2P connectivity)")
+		go func() {
+			// Wait for peer discovery and connections
+			time.Sleep(5 * time.Second)
+			if err := b.StartMining(); err != nil {
+				log.Error("Failed to start miner", "error", err)
+			}
+		}()
 	}
 
 	log.Info("Obsidian node started successfully",
