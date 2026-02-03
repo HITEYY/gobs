@@ -882,7 +882,7 @@ func (h *Handler) BroadcastBlock(block *obstypes.ObsidianBlock) {
 	h.peersMu.RUnlock()
 
 	if totalPeers == 0 {
-		log.Warn("No peers connected, cannot broadcast block",
+		log.Debug("No peers connected, skipping broadcast",
 			"number", block.NumberU64(),
 			"hash", hash.Hex()[:16],
 		)
