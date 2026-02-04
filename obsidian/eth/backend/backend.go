@@ -63,9 +63,7 @@ type Backend struct {
 	p2pHandler BlockBroadcaster
 
 	// Events
-	chainHeadFeed  event.Feed
 	minedBlockFeed event.Feed // For broadcasting mined blocks
-	newBlockFeed   event.Feed // For stealth scanning
 	scope          event.SubscriptionScope
 
 	// Production features
@@ -106,14 +104,6 @@ type GenesisAccount struct {
 	Storage map[common.Hash]common.Hash
 }
 
-// txLookupEntry is used to look up transactions
-type txLookupEntry struct {
-	BlockHash  common.Hash
-	BlockIndex uint64
-	TxIndex    uint64
-}
-
-// DefaultConfig returns the default backend configuration
 func DefaultConfig() *Config {
 	return &Config{
 		ChainID:         big.NewInt(1719),
