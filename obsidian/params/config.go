@@ -13,7 +13,7 @@ import (
 
 // ObsidianashConfig is the consensus engine config for Obsidian PoW
 type ObsidianashConfig struct {
-	// BlockTime is the target block time in seconds (default: 5)
+	// BlockTime is the target block time in seconds (default: 2)
 	BlockTime uint64 `json:"blockTime,omitempty"`
 
 	// InitialReward is the initial block reward in wei (default: 50 OBS)
@@ -25,7 +25,7 @@ type ObsidianashConfig struct {
 	// ChromaticPhase is the smooth halving transition period in blocks
 	ChromaticPhase uint64 `json:"chromaticPhase,omitempty"`
 
-	// MaxSupply is the maximum total supply (default: 500M OBS)
+	// MaxSupply is the maximum total supply (default: 1B OBS)
 	MaxSupply *big.Int `json:"maxSupply,omitempty"`
 }
 

@@ -61,8 +61,8 @@ var (
 	// InitialBlockReward is the mining reward for the first epoch (50 OBS)
 	InitialBlockReward = new(big.Int).Mul(big.NewInt(50), big.NewInt(1e18))
 
-	// MaxSupply is the maximum total supply of OBS tokens (500 million)
-	MaxSupply = new(big.Int).Mul(big.NewInt(500_000_000), big.NewInt(1e18))
+	// MaxSupply is the maximum total supply of OBS tokens (1 billion)
+	MaxSupply = new(big.Int).Mul(big.NewInt(1_000_000_000), big.NewInt(1e18))
 
 	// MinimumDifficulty is the minimum difficulty for PoW
 	MinimumDifficulty = big.NewInt(131072)
