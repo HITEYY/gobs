@@ -266,3 +266,4 @@ func (bs *BlockScanner) GetDetectedPayments() []*StealthPayment {
 func (bs *BlockScanner) GetTotalBalance() *big.Int {
 	return bs.scanner.TotalBalance()
 }
+
