@@ -9,23 +9,17 @@
     "constantinopleBlock": 0,
     "petersburgBlock": 0,
     "istanbulBlock": 0,
-    "muirGlacierBlock": 0,
     "berlinBlock": 0,
     "londonBlock": 0,
-    "shanghaiTime": 0,
-    "cancunTime": 0,
-    "ethash": {}
+    "terminalTotalDifficulty": 0,
+    "terminalTotalDifficultyPassed": true,
+    "obsidianash": {}
   },
-  "nonce": "0x0",
-  "timestamp": "0x0",
-  "extraData": "0x4f627369646961",
-  "gasLimit": "0x1c9c380",
-  "difficulty": "0x20000",
-  "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-  "coinbase": "0x0000000000000000000000000000000000000000",
-  "alloc": {},
-  "number": "0x0",
-  "gasUsed": "0x0",
-  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-  "baseFeePerGas": "0x3b9aca00"
+  "difficulty": "1",
+  "gasLimit": "30000000",
+  "alloc": {
+    "0xe63D423F84aa0FF5F5bf1Ed53838C4A6d61fe1cb": {
+      "balance": "1000000000000000000000000"
+    }
+  }
 }

@@ -251,3 +251,18 @@ func (bs *BlockScanner) scanLoop(ctx context.Context, startBlock uint64) {
 		}
 	}
 }
+
+// GetLastScannedBlock returns the last scanned block number
+func (bs *BlockScanner) GetLastScannedBlock() uint64 {
+	return bs.scanner.LastScannedBlock()
+}
+
+// GetDetectedPayments returns all payments detected by the scanner
+func (bs *BlockScanner) GetDetectedPayments() []*StealthPayment {
+	return bs.scanner.GetPayments()
+}
+
+// GetTotalBalance returns the total balance of all detected payments
+func (bs *BlockScanner) GetTotalBalance() *big.Int {
+	return bs.scanner.TotalBalance()
+}

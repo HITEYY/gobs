@@ -364,16 +364,25 @@ func (d *Downloader) fetchHeadersOneByOne(peer *Peer, from uint64, count uint64)
 	for i := uint64(0); i < count; i++ {
 		num := from + i
 
-		// Request block by number
-		if err := p2p.Send(peer.rw, GetBlockByNumberMsg, num); err != nil {
+		req := GetBlockHeadersPacket{
+			Origin: HashOrNumber{Number: num},
+			Amount: 1,
+		}
+
+		if err := p2p.Send(peer.rw, GetBlockHeadersMsg, &req); err != nil {
 			return headers, err
 		}
 
-		// Small delay to avoid overwhelming the peer
-		time.Sleep(50 * time.Millisecond)
+		select {
+		case res := <-d.headerCh:
+			if res.peer.id == peer.id && len(res.headers) > 0 {
+				headers = append(headers, res.headers[0])
+			}
+		case <-time.After(requestTimeout):
+			d.log.Debug("Header request timeout", "number", num)
+		}
 	}
 
-	// Return what we have - the blocks will be received through normal message handling
 	return headers, nil
 }
 

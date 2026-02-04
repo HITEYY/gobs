@@ -8,19 +8,26 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/rlp"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
 	"github.com/urfave/cli/v2"
 
+	"github.com/obsidian-chain/obsidian/accounts/keystore"
+	obstypes "github.com/obsidian-chain/obsidian/core/types"
 	"github.com/obsidian-chain/obsidian/eth/backend"
 	"github.com/obsidian-chain/obsidian/node"
 	obsp2p "github.com/obsidian-chain/obsidian/p2p"
@@ -141,6 +148,7 @@ func main() {
 			metricsCommand,
 			backupCommand,
 			nodeCommand,
+			walletCommand,
 		},
 		Flags: []cli.Flag{
 			dataDirFlag,
@@ -511,8 +519,21 @@ func accountNew(ctx *cli.Context) error {
 // accountList lists all accounts
 func accountList(ctx *cli.Context) error {
 	dataDir := ctx.String(dataDirFlag.Name)
-	fmt.Printf("Keystore directory: %s/keystore\n", dataDir)
-	fmt.Println("(Account listing from keystore not yet implemented)")
+	keystoreDir := filepath.Join(dataDir, "keystore")
+	ks := keystore.NewKeyStore(keystoreDir)
+	defer ks.Close()
+
+	accounts := ks.Accounts()
+	if len(accounts) == 0 {
+		fmt.Println("No accounts found in keystore")
+		return nil
+	}
+
+	fmt.Printf("Keystore directory: %s\n", keystoreDir)
+	fmt.Printf("Found %d account(s):\n", len(accounts))
+	for i, account := range accounts {
+		fmt.Printf("%d. %s (file: %s)\n", i+1, account.Address.Hex(), filepath.Base(account.URL.Path))
+	}
 	return nil
 }
 
@@ -638,3 +659,230 @@ func connectToSeedNodes(seedNodes []string) {
 		}(addr)
 	}
 }
+
+// walletCommand manages wallet operations
+var walletCommand = &cli.Command{
+	Name:  "wallet",
+	Usage: "Manage wallet operations and stealth transactions",
+	Subcommands: []*cli.Command{
+		{
+			Name:      "balance",
+			Usage:     "Check account balance",
+			ArgsUsage: "<address>",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "rpc",
+					Usage: "RPC endpoint to connect to",
+					Value: "http://localhost:8545",
+				},
+			},
+			Action: walletBalance,
+		},
+		{
+			Name:      "send",
+			Usage:     "Send funds to an address",
+			ArgsUsage: "<from> <to> <amount>",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "rpc",
+					Usage: "RPC endpoint to connect to",
+					Value: "http://localhost:8545",
+				},
+				&cli.StringFlag{
+					Name:  "password",
+					Usage: "Password to unlock the account",
+				},
+			},
+			Action: walletSend,
+		},
+		{
+			Name:      "stealth-send",
+			Usage:     "Send funds to a stealth meta-address",
+			ArgsUsage: "<from> <meta-address> <amount>",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "rpc",
+					Usage: "RPC endpoint to connect to",
+					Value: "http://localhost:8545",
+				},
+				&cli.StringFlag{
+					Name:  "password",
+					Usage: "Password to unlock the account",
+				},
+			},
+			Action: walletStealthSend,
+		},
+	},
+}
+
+func walletBalance(ctx *cli.Context) error {
+	addrStr := ctx.Args().First()
+	if addrStr == "" {
+		return fmt.Errorf("must provide an address")
+	}
+	addr := common.HexToAddress(addrStr)
+
+	client, err := ethrpc.Dial(ctx.String("rpc"))
+	if err != nil {
+		return fmt.Errorf("failed to connect to node: %v", err)
+	}
+	defer client.Close()
+
+	var balance hexutil.Big
+	if err := client.Call(&balance, "eth_getBalance", addr, "latest"); err != nil {
+		return fmt.Errorf("failed to get balance: %v", err)
+	}
+
+	fmt.Printf("Address: %s\n", addr.Hex())
+	fmt.Printf("Balance: %s wei\n", balance.String())
+	return nil
+}
+
+func walletSend(ctx *cli.Context) error {
+	if ctx.Args().Len() < 3 {
+		return fmt.Errorf("usage: wallet send <from> <to> <amount>")
+	}
+	from := common.HexToAddress(ctx.Args().Get(0))
+	to := common.HexToAddress(ctx.Args().Get(1))
+	amount, ok := new(big.Int).SetString(ctx.Args().Get(2), 10)
+	if !ok {
+		return fmt.Errorf("invalid amount")
+	}
+
+	client, err := ethrpc.Dial(ctx.String("rpc"))
+	if err != nil {
+		return fmt.Errorf("failed to connect to node: %v", err)
+	}
+	defer client.Close()
+
+	// Get nonce
+	var nonce hexutil.Uint64
+	if err := client.Call(&nonce, "eth_getTransactionCount", from, "latest"); err != nil {
+		return fmt.Errorf("failed to get nonce: %v", err)
+	}
+
+	// Create transaction
+	tx := obstypes.NewStealthTransaction(
+		uint64(nonce),
+		to,
+		amount,
+		21000,
+		big.NewInt(1e9), // 1 Gwei
+		nil,
+		nil,
+		0,
+	)
+
+	// Sign transaction
+	dataDir := ctx.String(dataDirFlag.Name)
+	ks := keystore.NewKeyStore(filepath.Join(dataDir, "keystore"))
+	defer ks.Close()
+
+	password := ctx.String("password")
+	if password == "" {
+		fmt.Print("Enter password: ")
+		// In a real app, use a proper password prompt
+		fmt.Scanln(&password)
+	}
+
+	signedTx, err := ks.SignTxWithPassword(from, password, tx, big.NewInt(1719))
+	if err != nil {
+		return fmt.Errorf("failed to sign transaction: %v", err)
+	}
+
+	// Encode signed tx
+	data, err := rlp.EncodeToBytes(signedTx)
+	if err != nil {
+		return fmt.Errorf("failed to encode transaction: %v", err)
+	}
+
+	// Send transaction
+	var txHash common.Hash
+	if err := client.Call(&txHash, "eth_sendRawTransaction", hexutil.Encode(data)); err != nil {
+		return fmt.Errorf("failed to send transaction: %v", err)
+	}
+
+	fmt.Printf("Transaction sent! Hash: %s\n", txHash.Hex())
+	return nil
+}
+
+func walletStealthSend(ctx *cli.Context) error {
+	if ctx.Args().Len() < 3 {
+		return fmt.Errorf("usage: wallet stealth-send <from> <meta-address> <amount>")
+	}
+	from := common.HexToAddress(ctx.Args().Get(0))
+	metaAddrStr := ctx.Args().Get(1)
+	amount, ok := new(big.Int).SetString(ctx.Args().Get(2), 10)
+	if !ok {
+		return fmt.Errorf("invalid amount")
+	}
+
+	metaAddr, err := stealth.ParseMetaAddress(metaAddrStr)
+	if err != nil {
+		return fmt.Errorf("invalid meta-address: %v", err)
+	}
+
+	// Generate stealth address
+	stealthAddr, err := stealth.GenerateStealthAddress(metaAddr)
+	if err != nil {
+		return fmt.Errorf("failed to generate stealth address: %v", err)
+	}
+
+	client, err := ethrpc.Dial(ctx.String("rpc"))
+	if err != nil {
+		return fmt.Errorf("failed to connect to node: %v", err)
+	}
+	defer client.Close()
+
+	// Get nonce
+	var nonce hexutil.Uint64
+	if err := client.Call(&nonce, "eth_getTransactionCount", from, "latest"); err != nil {
+		return fmt.Errorf("failed to get nonce: %v", err)
+	}
+
+	// Create stealth transaction
+	tx := obstypes.NewStealthTransaction(
+		uint64(nonce),
+		stealthAddr.Address,
+		amount,
+		100000,
+		big.NewInt(1e9),
+		nil,
+		stealthAddr.EphemeralPubKey,
+		stealthAddr.ViewTag,
+	)
+
+	// Sign transaction
+	dataDir := ctx.String(dataDirFlag.Name)
+	ks := keystore.NewKeyStore(filepath.Join(dataDir, "keystore"))
+	defer ks.Close()
+
+	password := ctx.String("password")
+	if password == "" {
+		fmt.Print("Enter password: ")
+		fmt.Scanln(&password)
+	}
+
+	signedTx, err := ks.SignTxWithPassword(from, password, tx, big.NewInt(1719))
+	if err != nil {
+		return fmt.Errorf("failed to sign transaction: %v", err)
+	}
+
+	// Encode signed tx
+	data, err := rlp.EncodeToBytes(signedTx)
+	if err != nil {
+		return fmt.Errorf("failed to encode transaction: %v", err)
+	}
+
+	// Send transaction
+	var txHash common.Hash
+	if err := client.Call(&txHash, "eth_sendRawTransaction", hexutil.Encode(data)); err != nil {
+		return fmt.Errorf("failed to send transaction: %v", err)
+	}
+
+	fmt.Printf("Stealth transaction sent!\n")
+	fmt.Printf("One-time address: %s\n", stealthAddr.Address.Hex())
+	fmt.Printf("Transaction hash: %s\n", txHash.Hex())
+	return nil
+}
+
