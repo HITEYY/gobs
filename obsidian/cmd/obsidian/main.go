@@ -651,11 +651,8 @@ func maintainP2PConnections(n *node.Node, seedNodes []*enode.Node) {
 	// Initial connection
 	dialPeers(n, seedNodes)
 
-	for {
-		select {
-		case <-ticker.C:
-			dialPeers(n, seedNodes)
-		}
+	for range ticker.C {
+		dialPeers(n, seedNodes)
 	}
 }
 
