@@ -28,13 +28,13 @@ var (
 
 // Config is the configuration for the miner
 type Config struct {
-	Etherbase    common.Address // Address for mining rewards
-	ExtraData    []byte         // Block extra data set by the miner
-	GasFloor     uint64         // Target gas floor for mined blocks
-	GasCeil      uint64         // Target gas ceiling for mined blocks
-	GasPrice     *big.Int       // Minimum gas price for mining a transaction
-	Recommit     time.Duration  // Interval to recreate mining work
-	NewPayload   time.Duration  // Maximum time for new payload building
+	Etherbase  common.Address // Address for mining rewards
+	ExtraData  []byte         // Block extra data set by the miner
+	GasFloor   uint64         // Target gas floor for mined blocks
+	GasCeil    uint64         // Target gas ceiling for mined blocks
+	GasPrice   *big.Int       // Minimum gas price for mining a transaction
+	Recommit   time.Duration  // Interval to recreate mining work
+	NewPayload time.Duration  // Maximum time for new payload building
 }
 
 // DefaultConfig returns the default miner configuration
@@ -78,10 +78,10 @@ type Miner struct {
 	engine  *obsidianash.ObsidianAsh
 
 	// Mining state
-	running    int32 // atomic
-	mining     int32 // atomic - tracks if actively mining
-	coinbase   common.Address
-	extraData  []byte
+	running   int32 // atomic
+	mining    int32 // atomic - tracks if actively mining
+	coinbase  common.Address
+	extraData []byte
 
 	// Work state
 	currentWork *Work
@@ -100,19 +100,19 @@ type Miner struct {
 	chainHeadSub event.Subscription
 
 	// Stats
-	minedBlocks  uint64 // atomic
+	minedBlocks uint64 // atomic
 
 	wg sync.WaitGroup
 }
 
 // Work represents a unit of mining work
 type Work struct {
-	Block      *obstypes.ObsidianBlock
-	Header     *obstypes.ObsidianHeader
-	Txs        []*obstypes.StealthTransaction
-	Receipts   []*Receipt
-	State      state.StateDBInterface
-	CreatedAt  time.Time
+	Block     *obstypes.ObsidianBlock
+	Header    *obstypes.ObsidianHeader
+	Txs       []*obstypes.StealthTransaction
+	Receipts  []*Receipt
+	State     state.StateDBInterface
+	CreatedAt time.Time
 }
 
 // Receipt is a placeholder for transaction receipts

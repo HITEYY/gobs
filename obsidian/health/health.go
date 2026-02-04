@@ -159,7 +159,7 @@ func (m *Monitor) updateStatus(failed, degraded int) {
 
 // BlockchainCheck checks blockchain health
 type BlockchainCheck struct {
-	CurrentBlock func() (uint64, error)
+	CurrentBlock  func() (uint64, error)
 	LastBlockTime func() time.Time
 }
 
@@ -216,7 +216,7 @@ func (c *NetworkCheck) Check(ctx context.Context) error {
 // MemoryCheck checks memory health
 type MemoryCheck struct {
 	MemUsage func() (uint64, uint64) // (used, total)
-	MaxUsage float64                   // percentage
+	MaxUsage float64                 // percentage
 }
 
 // Name implements Check
@@ -241,7 +241,7 @@ func (c *MemoryCheck) Check(ctx context.Context) error {
 // DiskCheck checks disk health
 type DiskCheck struct {
 	DiskUsage func() (uint64, uint64) // (used, total)
-	MaxUsage  float64                   // percentage
+	MaxUsage  float64                 // percentage
 }
 
 // Name implements Check

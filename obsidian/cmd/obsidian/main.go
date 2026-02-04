@@ -885,4 +885,3 @@ func walletStealthSend(ctx *cli.Context) error {
 	fmt.Printf("Transaction hash: %s\n", txHash.Hex())
 	return nil
 }
-

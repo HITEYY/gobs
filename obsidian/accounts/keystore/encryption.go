@@ -19,13 +19,13 @@ import (
 
 const (
 	// Standard scrypt parameters
-	scryptN     = 262144  // 2^18
+	scryptN     = 262144 // 2^18
 	scryptR     = 8
 	scryptP     = 1
 	scryptDKLen = 32
 
 	// Light scrypt parameters (for faster testing)
-	lightScryptN = 4096  // 2^12
+	lightScryptN = 4096 // 2^12
 	lightScryptR = 8
 	lightScryptP = 6
 

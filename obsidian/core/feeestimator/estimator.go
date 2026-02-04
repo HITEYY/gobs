@@ -14,8 +14,8 @@ type FeeEstimator struct {
 	mu sync.RWMutex
 
 	// Historical gas prices from recent blocks
-	history     []*big.Int
-	maxHistory  int
+	history    []*big.Int
+	maxHistory int
 
 	// Configuration
 	minGasPrice *big.Int

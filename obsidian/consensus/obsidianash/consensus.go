@@ -30,8 +30,8 @@ import (
 
 // ObsidianAsh protocol constants
 const (
-	maxUncles                     = 2  // Maximum uncles per block
-	allowedFutureBlockTimeSeconds = 3  // Max seconds from now for future blocks
+	maxUncles                     = 2 // Maximum uncles per block
+	allowedFutureBlockTimeSeconds = 3 // Max seconds from now for future blocks
 )
 
 // Errors

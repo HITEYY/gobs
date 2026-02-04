@@ -40,14 +40,14 @@ var (
 
 // Config contains the configuration for the transaction pool
 type Config struct {
-	Journal     string        // Path to the transaction journal file
-	Rejournal   time.Duration // Time interval to regenerate the journal
-	PriceLimit  uint64        // Minimum gas price to accept
-	PriceBump   uint64        // Minimum price bump percentage
-	AccountSlots uint64       // Minimum number of executable transaction slots
-	GlobalSlots  uint64       // Maximum number of executable transaction slots
-	AccountQueue uint64       // Maximum number of non-executable transaction slots
-	GlobalQueue  uint64       // Maximum number of non-executable transaction slots
+	Journal      string        // Path to the transaction journal file
+	Rejournal    time.Duration // Time interval to regenerate the journal
+	PriceLimit   uint64        // Minimum gas price to accept
+	PriceBump    uint64        // Minimum price bump percentage
+	AccountSlots uint64        // Minimum number of executable transaction slots
+	GlobalSlots  uint64        // Maximum number of executable transaction slots
+	AccountQueue uint64        // Maximum number of non-executable transaction slots
+	GlobalQueue  uint64        // Maximum number of non-executable transaction slots
 	Lifetime     time.Duration // Maximum duration for non-executable transactions
 }
 
@@ -550,4 +550,3 @@ func newTxPricedList(all *txLookup) *txPricedList {
 // txSortedMap is a nonce-sorted map of transactions
 type txSortedMap struct {
 }
-

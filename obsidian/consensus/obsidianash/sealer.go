@@ -19,8 +19,7 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-var (
-)
+var ()
 
 // hashrate tracks the mining hashrate
 type hashrate struct {

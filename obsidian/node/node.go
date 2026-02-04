@@ -38,18 +38,18 @@ type Config struct {
 	// P2P configuration
 	P2P p2p.Config
 	// HTTP RPC configuration
-	HTTPHost         string `toml:",omitempty"`
-	HTTPPort         int    `toml:",omitempty"`
+	HTTPHost         string   `toml:",omitempty"`
+	HTTPPort         int      `toml:",omitempty"`
 	HTTPCors         []string `toml:",omitempty"`
 	HTTPVirtualHosts []string `toml:",omitempty"`
 	HTTPModules      []string `toml:",omitempty"`
 	HTTPPathPrefix   string   `toml:",omitempty"`
 	// WebSocket configuration
-	WSHost         string   `toml:",omitempty"`
-	WSPort         int      `toml:",omitempty"`
-	WSOrigins      []string `toml:",omitempty"`
-	WSModules      []string `toml:",omitempty"`
-	WSPathPrefix   string   `toml:",omitempty"`
+	WSHost       string   `toml:",omitempty"`
+	WSPort       int      `toml:",omitempty"`
+	WSOrigins    []string `toml:",omitempty"`
+	WSModules    []string `toml:",omitempty"`
+	WSPathPrefix string   `toml:",omitempty"`
 	// IPC configuration
 	IPCPath string `toml:",omitempty"`
 	// Logger for the node
@@ -105,13 +105,13 @@ type Node struct {
 	serverMux sync.RWMutex
 
 	// RPC
-	rpcAPIs       []rpc.API
-	httpListener  net.Listener
-	httpHandler   *rpc.Server
-	wsListener    net.Listener
-	wsHandler     *rpc.Server
-	ipcListener   net.Listener
-	ipcHandler    *rpc.Server
+	rpcAPIs      []rpc.API
+	httpListener net.Listener
+	httpHandler  *rpc.Server
+	wsListener   net.Listener
+	wsHandler    *rpc.Server
+	ipcListener  net.Listener
+	ipcHandler   *rpc.Server
 
 	// Lifecycle
 	startStopLock sync.Mutex
@@ -150,10 +150,10 @@ func New(config *Config) (*Node, error) {
 	}
 
 	return &Node{
-		config:     conf,
-		log:        logger,
-		services:   make(map[string]Lifecycle),
-		closeCh:    make(chan struct{}),
+		config:   conf,
+		log:      logger,
+		services: make(map[string]Lifecycle),
+		closeCh:  make(chan struct{}),
 	}, nil
 }
 

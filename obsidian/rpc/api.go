@@ -22,10 +22,10 @@ import (
 
 // Common errors
 var (
-	ErrNotFound         = errors.New("not found")
-	ErrInvalidTx        = errors.New("invalid transaction")
-	ErrTxPoolFull       = errors.New("transaction pool full")
-	ErrUnknownBlock     = errors.New("unknown block")
+	ErrNotFound     = errors.New("not found")
+	ErrInvalidTx    = errors.New("invalid transaction")
+	ErrTxPoolFull   = errors.New("transaction pool full")
+	ErrUnknownBlock = errors.New("unknown block")
 )
 
 // Backend interface defines the methods needed by the RPC API
@@ -421,7 +421,7 @@ func (api *PublicObsidianAPI) GenerateStealthAddress(metaAddressStr string) (map
 	}
 
 	return map[string]string{
-		"stealthAddress":   stealthAddr.Address.Hex(),
+		"stealthAddress":  stealthAddr.Address.Hex(),
 		"ephemeralPubKey": hex.EncodeToString(stealthAddr.EphemeralPubKey),
 		"viewTag":         fmt.Sprintf("0x%02x", stealthAddr.ViewTag),
 	}, nil
@@ -667,8 +667,8 @@ func (api *PublicObsidianAPI) DeriveStealthPrivateKey(args struct {
 
 // ComputeStealthAddress computes the stealth address for verification
 func (api *PublicObsidianAPI) ComputeStealthAddress(args struct {
-	ViewPrivateKey string `json:"viewPrivateKey"`
-	SpendPublicKey string `json:"spendPublicKey"`
+	ViewPrivateKey  string `json:"viewPrivateKey"`
+	SpendPublicKey  string `json:"spendPublicKey"`
 	EphemeralPubKey string `json:"ephemeralPubKey"`
 }) (common.Address, error) {
 	// Parse view private key
@@ -784,28 +784,28 @@ func (api *PublicObsidianAPI) GetFeeEstimate(ctx context.Context) map[string]int
 	average := new(big.Int).Mul(gasPrice, big.NewInt(12))
 	average.Div(average, big.NewInt(10)) // 1.2x
 	fast := new(big.Int).Mul(gasPrice, big.NewInt(15))
-	fast.Div(fast, big.NewInt(10)) // 1.5x
+	fast.Div(fast, big.NewInt(10))                       // 1.5x
 	instant := new(big.Int).Mul(gasPrice, big.NewInt(2)) // 2x
 
 	return map[string]interface{}{
 		"slow": map[string]interface{}{
-			"gasPrice":            (*hexutil.Big)(slow),
-			"estimatedBlocks":     30,
+			"gasPrice":             (*hexutil.Big)(slow),
+			"estimatedBlocks":      30,
 			"estimatedTimeSeconds": 360, // ~6 minutes
 		},
 		"average": map[string]interface{}{
-			"gasPrice":            (*hexutil.Big)(average),
-			"estimatedBlocks":     10,
+			"gasPrice":             (*hexutil.Big)(average),
+			"estimatedBlocks":      10,
 			"estimatedTimeSeconds": 120, // ~2 minutes
 		},
 		"fast": map[string]interface{}{
-			"gasPrice":            (*hexutil.Big)(fast),
-			"estimatedBlocks":     3,
+			"gasPrice":             (*hexutil.Big)(fast),
+			"estimatedBlocks":      3,
 			"estimatedTimeSeconds": 36, // ~36 seconds
 		},
 		"instant": map[string]interface{}{
-			"gasPrice":            (*hexutil.Big)(instant),
-			"estimatedBlocks":     1,
+			"gasPrice":             (*hexutil.Big)(instant),
+			"estimatedBlocks":      1,
 			"estimatedTimeSeconds": 12, // next block
 		},
 		"baseFee": (*hexutil.Big)(gasPrice),
@@ -844,10 +844,10 @@ func (api *PublicObsidianAPI) EstimateTransactionFee(ctx context.Context, args s
 	totalFee := new(big.Int).Mul(gasPrice.ToInt(), new(big.Int).SetUint64(gasLimit))
 
 	return map[string]interface{}{
-		"gasLimit":  gasLimit,
-		"gasPrice":  gasPrice,
-		"totalFee":  (*hexutil.Big)(totalFee),
-		"priority":  priority,
+		"gasLimit":        gasLimit,
+		"gasPrice":        gasPrice,
+		"totalFee":        (*hexutil.Big)(totalFee),
+		"priority":        priority,
 		"estimatedBlocks": feeData["estimatedBlocks"],
 	}
 }
@@ -977,14 +977,14 @@ func RPCMarshalTransaction(tx *obstypes.StealthTransaction, blockHash common.Has
 	to := tx.To()
 
 	fields := map[string]interface{}{
-		"hash":             tx.Hash(),
-		"type":             hexutil.Uint64(tx.Type()),
-		"from":             from,
-		"nonce":            hexutil.Uint64(tx.Nonce()),
-		"gas":              hexutil.Uint64(tx.Gas()),
-		"gasPrice":         (*hexutil.Big)(tx.GasPrice()),
-		"value":            (*hexutil.Big)(tx.Value()),
-		"input":            hexutil.Bytes(tx.Data()),
+		"hash":     tx.Hash(),
+		"type":     hexutil.Uint64(tx.Type()),
+		"from":     from,
+		"nonce":    hexutil.Uint64(tx.Nonce()),
+		"gas":      hexutil.Uint64(tx.Gas()),
+		"gasPrice": (*hexutil.Big)(tx.GasPrice()),
+		"value":    (*hexutil.Big)(tx.Value()),
+		"input":    hexutil.Bytes(tx.Data()),
 	}
 
 	// Add block-related fields if in a block

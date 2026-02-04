@@ -34,20 +34,20 @@ type Config struct {
 
 // NetworkConfig contains network-related settings
 type NetworkConfig struct {
-	Port       int    `json:"port"`        // P2P listening port
-	MaxPeers   int    `json:"maxPeers"`    // Maximum peer connections
-	BootNodes  []string `json:"bootNodes"` // Bootstrap nodes
-	NAT        string `json:"nat"`         // NAT traversal method
-	NetworkID  uint64 `json:"networkId"`   // Network ID
+	Port      int      `json:"port"`      // P2P listening port
+	MaxPeers  int      `json:"maxPeers"`  // Maximum peer connections
+	BootNodes []string `json:"bootNodes"` // Bootstrap nodes
+	NAT       string   `json:"nat"`       // NAT traversal method
+	NetworkID uint64   `json:"networkId"` // Network ID
 }
 
 // DatabaseConfig contains database settings
 type DatabaseConfig struct {
-	DataDir    string `json:"dataDir"`    // Data directory
-	Cache      int    `json:"cache"`      // Cache size in MB
-	Handles    int    `json:"handles"`    // Number of open file handles
-	Sync       bool   `json:"sync"`       // Synchronous writes
-	GarbageCollectInterval int `json:"gcInterval"` // GC interval in seconds
+	DataDir                string `json:"dataDir"`    // Data directory
+	Cache                  int    `json:"cache"`      // Cache size in MB
+	Handles                int    `json:"handles"`    // Number of open file handles
+	Sync                   bool   `json:"sync"`       // Synchronous writes
+	GarbageCollectInterval int    `json:"gcInterval"` // GC interval in seconds
 }
 
 // RPCConfig contains RPC server settings
@@ -83,10 +83,10 @@ type LoggingConfig struct {
 
 // PerformanceConfig contains performance tuning settings
 type PerformanceConfig struct {
-	TxPoolSize      int `json:"txPoolSize"`      // Transaction pool size
-	BlockCacheSize  int `json:"blockCacheSize"`  // Block cache size
-	TrieCacheSize   int `json:"trieCacheSize"`   // Trie cache size
-	MaxBlockSize    int `json:"maxBlockSize"`    // Max block size in bytes
+	TxPoolSize     int `json:"txPoolSize"`     // Transaction pool size
+	BlockCacheSize int `json:"blockCacheSize"` // Block cache size
+	TrieCacheSize  int `json:"trieCacheSize"`  // Trie cache size
+	MaxBlockSize   int `json:"maxBlockSize"`   // Max block size in bytes
 }
 
 // DefaultConfig returns a default configuration
@@ -100,10 +100,10 @@ func DefaultConfig() *Config {
 			NetworkID: 1,
 		},
 		Database: DatabaseConfig{
-			DataDir:    "~/.obsidian",
-			Cache:      512,
-			Handles:    4096,
-			Sync:       false,
+			DataDir:                "~/.obsidian",
+			Cache:                  512,
+			Handles:                4096,
+			Sync:                   false,
 			GarbageCollectInterval: 3600,
 		},
 		RPC: RPCConfig{

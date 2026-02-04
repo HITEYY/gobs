@@ -20,10 +20,10 @@ type Manager struct {
 	mu sync.RWMutex
 
 	// State
-	shutting    int32 // atomic flag
-	done        chan struct{}
-	handlers    []Handler
-	timeout     time.Duration
+	shutting int32 // atomic flag
+	done     chan struct{}
+	handlers []Handler
+	timeout  time.Duration
 
 	// Signal handling
 	sigChan chan os.Signal

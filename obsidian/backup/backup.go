@@ -18,8 +18,8 @@ import (
 
 // Manager manages database backups
 type Manager struct {
-	dataDir  string
-	backupDir string
+	dataDir    string
+	backupDir  string
 	maxBackups int
 }
 

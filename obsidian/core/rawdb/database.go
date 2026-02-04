@@ -20,9 +20,9 @@ import (
 
 var (
 	// Database key prefixes
-	headerPrefix        = []byte("h") // headerPrefix + num (uint64 big endian) + hash -> header
-	headerHashSuffix    = []byte("n") // headerPrefix + num (uint64 big endian) + headerHashSuffix -> hash
-	headerNumberPrefix  = []byte("H") // headerNumberPrefix + hash -> num (uint64 big endian)
+	headerPrefix       = []byte("h") // headerPrefix + num (uint64 big endian) + hash -> header
+	headerHashSuffix   = []byte("n") // headerPrefix + num (uint64 big endian) + headerHashSuffix -> hash
+	headerNumberPrefix = []byte("H") // headerNumberPrefix + hash -> num (uint64 big endian)
 
 	blockBodyPrefix     = []byte("b") // blockBodyPrefix + num (uint64 big endian) + hash -> block body
 	blockReceiptsPrefix = []byte("r") // blockReceiptsPrefix + num (uint64 big endian) + hash -> block receipts
@@ -35,11 +35,11 @@ var (
 	headBlockKey  = []byte("LastBlock")
 
 	// Account state keys (for flat state)
-	accountPrefix       = []byte("a") // accountPrefix + address hash -> account data
-	storagePrefix       = []byte("o") // storagePrefix + address hash + key hash -> storage value
+	accountPrefix = []byte("a") // accountPrefix + address hash -> account data
+	storagePrefix = []byte("o") // storagePrefix + address hash + key hash -> storage value
 
 	// Total difficulty
-	tdSuffix            = []byte("t") // headerPrefix + num + hash + tdSuffix -> total difficulty
+	tdSuffix = []byte("t") // headerPrefix + num + hash + tdSuffix -> total difficulty
 )
 
 var (

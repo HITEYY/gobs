@@ -37,19 +37,19 @@ func NewAdmin(backend AdminBackend) *Admin {
 
 // HealthCheckResult represents the result of a health check
 type HealthCheckResult struct {
-	Name      string      `json:"name"`
-	Healthy   bool        `json:"healthy"`
-	Error     string      `json:"error,omitempty"`
-	Duration  string      `json:"duration"`
-	Timestamp int64       `json:"timestamp"`
+	Name      string `json:"name"`
+	Healthy   bool   `json:"healthy"`
+	Error     string `json:"error,omitempty"`
+	Duration  string `json:"duration"`
+	Timestamp int64  `json:"timestamp"`
 }
 
 // NodeHealthStatus represents overall node health
 type NodeHealthStatus struct {
-	Status  string                `json:"status"`
-	Checks  []HealthCheckResult   `json:"checks"`
-	Uptime  string                `json:"uptime"`
-	Version string                `json:"version"`
+	Status  string              `json:"status"`
+	Checks  []HealthCheckResult `json:"checks"`
+	Uptime  string              `json:"uptime"`
+	Version string              `json:"version"`
 }
 
 // Health runs all health checks and returns the results
@@ -78,18 +78,18 @@ func (a *Admin) Health(ctx context.Context) (*NodeHealthStatus, error) {
 
 // MetricsSnapshot represents a snapshot of node metrics
 type MetricsSnapshot struct {
-	BlocksProcessed      int64   `json:"blocksProcessed"`
-	BlocksRejected       int64   `json:"blocksRejected"`
-	TransactionsValid    int64   `json:"transactionsValid"`
-	TransactionsRejected int64   `json:"transactionsRejected"`
-	TransactionsReceived int64   `json:"transactionsReceived"`
-	PeersConnected       int64   `json:"peersConnected"`
-	RPCRequestsTotal     int64   `json:"rpcRequestsTotal"`
-	MessagesSent         int64   `json:"messagesSent"`
-	MessagesReceived     int64   `json:"messagesReceived"`
-	TxPoolSize           int64   `json:"txPoolSize"`
-	AvgBlockTime         string  `json:"avgBlockTime"`
-	Timestamp            int64   `json:"timestamp"`
+	BlocksProcessed      int64  `json:"blocksProcessed"`
+	BlocksRejected       int64  `json:"blocksRejected"`
+	TransactionsValid    int64  `json:"transactionsValid"`
+	TransactionsRejected int64  `json:"transactionsRejected"`
+	TransactionsReceived int64  `json:"transactionsReceived"`
+	PeersConnected       int64  `json:"peersConnected"`
+	RPCRequestsTotal     int64  `json:"rpcRequestsTotal"`
+	MessagesSent         int64  `json:"messagesSent"`
+	MessagesReceived     int64  `json:"messagesReceived"`
+	TxPoolSize           int64  `json:"txPoolSize"`
+	AvgBlockTime         string `json:"avgBlockTime"`
+	Timestamp            int64  `json:"timestamp"`
 }
 
 // Metrics returns current metrics
@@ -155,11 +155,11 @@ type SystemStatus struct {
 
 // MemoryStatus represents memory information
 type MemoryStatus struct {
-	AllocMB       uint64 `json:"allocMB"`
-	TotalMB       uint64 `json:"totalMB"`
-	SysMB         uint64 `json:"sysMB"`
-	NumGC         uint32 `json:"numGC"`
-	PauseNanoSec  uint64 `json:"pauseNanoSec"`
+	AllocMB      uint64 `json:"allocMB"`
+	TotalMB      uint64 `json:"totalMB"`
+	SysMB        uint64 `json:"sysMB"`
+	NumGC        uint32 `json:"numGC"`
+	PauseNanoSec uint64 `json:"pauseNanoSec"`
 }
 
 // SystemStatus returns system resource information
@@ -204,14 +204,14 @@ func (a *Admin) CreateBackup(ctx context.Context, name string) (*BackupInfo, err
 
 // Version represents version information
 type VersionInfo struct {
-	Name        string `json:"name"`
-	Version     string `json:"version"`
-	GitCommit   string `json:"gitCommit"`
-	GitDate     string `json:"gitDate"`
-	OS          string `json:"os"`
-	Arch        string `json:"arch"`
-	GoVersion   string `json:"goVersion"`
-	BuildDate   string `json:"buildDate"`
+	Name      string `json:"name"`
+	Version   string `json:"version"`
+	GitCommit string `json:"gitCommit"`
+	GitDate   string `json:"gitDate"`
+	OS        string `json:"os"`
+	Arch      string `json:"arch"`
+	GoVersion string `json:"goVersion"`
+	BuildDate string `json:"buildDate"`
 }
 
 // Version returns version information

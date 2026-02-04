@@ -14,10 +14,10 @@ import (
 )
 
 var (
-	ErrScannerExists    = errors.New("scanner already exists for this address")
-	ErrScannerNotFound  = errors.New("scanner not found for this address")
-	ErrBackendRequired  = errors.New("blockchain backend required")
-	ErrKeysRequired     = errors.New("view and spend keys required")
+	ErrScannerExists   = errors.New("scanner already exists for this address")
+	ErrScannerNotFound = errors.New("scanner not found for this address")
+	ErrBackendRequired = errors.New("blockchain backend required")
+	ErrKeysRequired    = errors.New("view and spend keys required")
 )
 
 // StealthService manages multiple stealth address scanners
@@ -238,11 +238,11 @@ func (s *StealthService) autoScanLoop(ctx context.Context) {
 
 // ScanResult represents the result of scanning for a specific scanner
 type ScanResult struct {
-	ScannerID   common.Address     `json:"scannerId"`
-	Payments    []*StealthPayment  `json:"payments"`
-	TotalAmount string             `json:"totalAmount"`
-	BlocksFrom  uint64             `json:"blocksFrom"`
-	BlocksTo    uint64             `json:"blocksTo"`
+	ScannerID   common.Address    `json:"scannerId"`
+	Payments    []*StealthPayment `json:"payments"`
+	TotalAmount string            `json:"totalAmount"`
+	BlocksFrom  uint64            `json:"blocksFrom"`
+	BlocksTo    uint64            `json:"blocksTo"`
 }
 
 // ScanForPayments is a convenience method that scans blocks and returns results

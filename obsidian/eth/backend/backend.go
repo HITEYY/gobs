@@ -22,11 +22,11 @@ import (
 	"github.com/obsidian-chain/obsidian/backup"
 	"github.com/obsidian-chain/obsidian/consensus/obsidianash"
 	obsstate "github.com/obsidian-chain/obsidian/core/state"
-	obstypes "github.com/obsidian-chain/obsidian/core/types"
 	"github.com/obsidian-chain/obsidian/core/txpool"
+	obstypes "github.com/obsidian-chain/obsidian/core/types"
 	"github.com/obsidian-chain/obsidian/health"
-	"github.com/obsidian-chain/obsidian/miner"
 	"github.com/obsidian-chain/obsidian/metrics"
+	"github.com/obsidian-chain/obsidian/miner"
 	"github.com/obsidian-chain/obsidian/params"
 	"github.com/obsidian-chain/obsidian/shutdown"
 	"github.com/obsidian-chain/obsidian/stealth"
@@ -48,12 +48,12 @@ type Backend struct {
 	config *Config
 
 	// Core components
-	engine        *obsidianash.ObsidianAsh
-	txPool        *txpool.TxPool
-	miner         *miner.Miner
-	state         *obsstate.StateDB
-	keystore      *keystore.KeystoreWrapper
-	stealthSvc    *stealth.StealthService
+	engine     *obsidianash.ObsidianAsh
+	txPool     *txpool.TxPool
+	miner      *miner.Miner
+	state      *obsstate.StateDB
+	keystore   *keystore.KeystoreWrapper
+	stealthSvc *stealth.StealthService
 
 	// Blockchain data
 	chainMu      sync.RWMutex
@@ -564,12 +564,12 @@ func (b *Backend) GetBlockByNumber(number uint64) *obstypes.ObsidianBlock {
 func (b *Backend) GetTD(hash common.Hash) *big.Int {
 	b.chainMu.RLock()
 	defer b.chainMu.RUnlock()
-	
+
 	block, ok := b.blocks[hash]
 	if !ok {
 		return nil
 	}
-	
+
 	// Calculate total difficulty by summing all difficulties
 	td := big.NewInt(0)
 	for num := uint64(0); num <= block.NumberU64(); num++ {

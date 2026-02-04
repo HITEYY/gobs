@@ -135,10 +135,10 @@ type Handler struct {
 	backend     Backend
 
 	// Peer management
-	peers      map[string]*Peer
-	peersMu    sync.RWMutex
-	maxPeers   int
-	peerCount  int32
+	peers     map[string]*Peer
+	peersMu   sync.RWMutex
+	maxPeers  int
+	peerCount int32
 
 	// Synchronization
 	syncing      int32
@@ -150,7 +150,7 @@ type Handler struct {
 	pendingBlocksMu sync.RWMutex
 
 	// Channels
-	quitCh     chan struct{}
+	quitCh          chan struct{}
 	blockAnnounceCh chan *obstypes.ObsidianBlock
 
 	// Stats
@@ -168,10 +168,10 @@ type Peer struct {
 	version uint32
 
 	// Peer state
-	head    common.Hash
-	td      *big.Int
-	number  uint64
-	lock    sync.RWMutex
+	head   common.Hash
+	td     *big.Int
+	number uint64
+	lock   sync.RWMutex
 
 	// Known blocks/txs (to avoid re-sending)
 	knownBlocks *knownCache
@@ -298,10 +298,10 @@ func (h *Handler) Protocol() p2p.Protocol {
 func (h *Handler) NodeInfo() interface{} {
 	head := h.backend.CurrentBlock()
 	return map[string]interface{}{
-		"network":     h.networkID,
-		"genesis":     h.genesisHash.Hex(),
-		"head":        head.Hash().Hex(),
-		"headNumber":  head.Number.Uint64(),
+		"network":    h.networkID,
+		"genesis":    h.genesisHash.Hex(),
+		"head":       head.Hash().Hex(),
+		"headNumber": head.Number.Uint64(),
 	}
 }
 
@@ -1116,7 +1116,3 @@ func (h *Handler) Stop() {
 	}
 	h.peersMu.Unlock()
 }
-
-
-
-

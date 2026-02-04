@@ -12,17 +12,17 @@ import (
 // Metrics holds all system metrics
 type Metrics struct {
 	// Block metrics
-	BlocksProcessed   int64
-	BlocksRejected    int64
-	BlockProcessTime  time.Duration
-	LastBlockTime     time.Time
+	BlocksProcessed  int64
+	BlocksRejected   int64
+	BlockProcessTime time.Duration
+	LastBlockTime    time.Time
 
 	// Transaction metrics
 	TransactionsReceived int64
 	TransactionsValid    int64
 	TransactionsRejected int64
-	TxPoolSize          int64
-	TxPoolCap           int64
+	TxPoolSize           int64
+	TxPoolCap            int64
 
 	// Network metrics
 	PeersConnected   int64
@@ -38,20 +38,20 @@ type Metrics struct {
 	RPCLastRequestTime time.Time
 
 	// State metrics
-	StateObjects      int64
-	StateTrieSize     int64
-	AccountsTracked   int64
+	StateObjects    int64
+	StateTrieSize   int64
+	AccountsTracked int64
 
 	// Mining metrics
-	HashesPerSecond   float64
-	MinedBlocks       int64
-	DifficultyTarget  string
+	HashesPerSecond  float64
+	MinedBlocks      int64
+	DifficultyTarget string
 
 	// System metrics
-	MemoryAllocated   uint64
-	MemoryTotal       uint64
-	GoroutinesCount   int
-	CPUPercent        float64
+	MemoryAllocated uint64
+	MemoryTotal     uint64
+	GoroutinesCount int
+	CPUPercent      float64
 }
 
 // Counter is an atomic counter
@@ -106,12 +106,12 @@ func (g *Gauge) Get() int64 {
 
 // Histogram tracks value distributions
 type Histogram struct {
-	mu      sync.RWMutex
-	values  []int64
-	sum     int64
-	count   int64
-	min     int64
-	max     int64
+	mu     sync.RWMutex
+	values []int64
+	sum    int64
+	count  int64
+	min    int64
+	max    int64
 }
 
 // NewHistogram creates a new histogram
@@ -181,17 +181,17 @@ func (h *Histogram) Count() int64 {
 type MetricsRegistry struct {
 	mu sync.RWMutex
 
-	BlocksProcessed   *Counter
-	BlocksRejected    *Counter
-	TxReceived        *Counter
-	TxValid           *Counter
-	TxRejected        *Counter
-	PeersConnected    *Gauge
-	RPCRequests       *Counter
-	BlockProcessTime  *Histogram
-	TxPoolSize        *Gauge
-	MessagesSent      *Counter
-	MessagesReceived  *Counter
+	BlocksProcessed  *Counter
+	BlocksRejected   *Counter
+	TxReceived       *Counter
+	TxValid          *Counter
+	TxRejected       *Counter
+	PeersConnected   *Gauge
+	RPCRequests      *Counter
+	BlockProcessTime *Histogram
+	TxPoolSize       *Gauge
+	MessagesSent     *Counter
+	MessagesReceived *Counter
 
 	startTime   time.Time
 	lastMetrics *Metrics
@@ -200,19 +200,19 @@ type MetricsRegistry struct {
 // NewMetricsRegistry creates a new metrics registry
 func NewMetricsRegistry() *MetricsRegistry {
 	return &MetricsRegistry{
-		BlocksProcessed:   NewCounter(),
-		BlocksRejected:    NewCounter(),
-		TxReceived:        NewCounter(),
-		TxValid:           NewCounter(),
-		TxRejected:        NewCounter(),
-		PeersConnected:    NewGauge(),
-		RPCRequests:       NewCounter(),
-		BlockProcessTime:  NewHistogram(),
-		TxPoolSize:        NewGauge(),
-		MessagesSent:      NewCounter(),
-		MessagesReceived:  NewCounter(),
-		startTime:         time.Now(),
-		lastMetrics:       &Metrics{},
+		BlocksProcessed:  NewCounter(),
+		BlocksRejected:   NewCounter(),
+		TxReceived:       NewCounter(),
+		TxValid:          NewCounter(),
+		TxRejected:       NewCounter(),
+		PeersConnected:   NewGauge(),
+		RPCRequests:      NewCounter(),
+		BlockProcessTime: NewHistogram(),
+		TxPoolSize:       NewGauge(),
+		MessagesSent:     NewCounter(),
+		MessagesReceived: NewCounter(),
+		startTime:        time.Now(),
+		lastMetrics:      &Metrics{},
 	}
 }
 
@@ -222,18 +222,18 @@ func (mr *MetricsRegistry) GetMetrics() *Metrics {
 	defer mr.mu.Unlock()
 
 	return &Metrics{
-		BlocksProcessed:   mr.BlocksProcessed.Get(),
-		BlocksRejected:    mr.BlocksRejected.Get(),
-		TransactionsValid: mr.TxValid.Get(),
+		BlocksProcessed:      mr.BlocksProcessed.Get(),
+		BlocksRejected:       mr.BlocksRejected.Get(),
+		TransactionsValid:    mr.TxValid.Get(),
 		TransactionsRejected: mr.TxRejected.Get(),
 		TransactionsReceived: mr.TxReceived.Get(),
-		PeersConnected:    mr.PeersConnected.Get(),
-		RPCRequestsTotal:  mr.RPCRequests.Get(),
-		MessagesSent:      mr.MessagesSent.Get(),
-		MessagesReceived:  mr.MessagesReceived.Get(),
-		TxPoolSize:        mr.TxPoolSize.Get(),
-		BlockProcessTime:  time.Duration(int64(mr.BlockProcessTime.Mean())) * time.Millisecond,
-		LastBlockTime:     time.Now(),
+		PeersConnected:       mr.PeersConnected.Get(),
+		RPCRequestsTotal:     mr.RPCRequests.Get(),
+		MessagesSent:         mr.MessagesSent.Get(),
+		MessagesReceived:     mr.MessagesReceived.Get(),
+		TxPoolSize:           mr.TxPoolSize.Get(),
+		BlockProcessTime:     time.Duration(int64(mr.BlockProcessTime.Mean())) * time.Millisecond,
+		LastBlockTime:        time.Now(),
 	}
 }
 

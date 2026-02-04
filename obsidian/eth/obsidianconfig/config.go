@@ -56,13 +56,13 @@ type FullnodeConfig struct {
 
 // MinerConfig contains the configuration options for the miner
 type MinerConfig struct {
-	Etherbase    common.Address `toml:",omitempty"` // Public address for block mining rewards
-	ExtraData    []byte         `toml:",omitempty"` // Block extra data set by the miner
-	GasFloor     uint64         // Target gas floor for mined blocks
-	GasCeil      uint64         // Target gas ceiling for mined blocks
-	GasPrice     *big.Int       // Minimum gas price for mining a transaction
-	Recommit     time.Duration  // The time interval for miner to re-create mining work
-	NewPayload   time.Duration  // The maximum time for miner to wait for new payload to build
+	Etherbase           common.Address `toml:",omitempty"` // Public address for block mining rewards
+	ExtraData           []byte         `toml:",omitempty"` // Block extra data set by the miner
+	GasFloor            uint64         // Target gas floor for mined blocks
+	GasCeil             uint64         // Target gas ceiling for mined blocks
+	GasPrice            *big.Int       // Minimum gas price for mining a transaction
+	Recommit            time.Duration  // The time interval for miner to re-create mining work
+	NewPayload          time.Duration  // The maximum time for miner to wait for new payload to build
 	PendingFeeRecipient common.Address `toml:",omitempty"` // Address to receive pending fees
 }
 
@@ -97,10 +97,10 @@ func DefaultMinerConfig() MinerConfig {
 // DefaultTxPoolConfig returns the default configuration for the transaction pool
 func DefaultTxPoolConfig() legacypool.Config {
 	return legacypool.Config{
-		Journal:   "transactions.rlp",
-		Rejournal: time.Hour,
-		PriceLimit: 1,
-		PriceBump:  10,
+		Journal:      "transactions.rlp",
+		Rejournal:    time.Hour,
+		PriceLimit:   1,
+		PriceBump:    10,
 		AccountSlots: 16,
 		GlobalSlots:  4096 + 1024,
 		AccountQueue: 64,

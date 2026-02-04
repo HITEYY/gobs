@@ -11,10 +11,10 @@ import (
 
 // Version information
 const (
-	VersionMajor = 1        // Major version component
-	VersionMinor = 0        // Minor version component
-	VersionPatch = 0        // Patch version component
-	VersionMeta  = "alpha"  // Version metadata
+	VersionMajor = 1       // Major version component
+	VersionMinor = 0       // Minor version component
+	VersionPatch = 0       // Patch version component
+	VersionMeta  = "alpha" // Version metadata
 )
 
 // Version holds the textual version string
@@ -76,14 +76,14 @@ var (
 
 // NetworkID constants
 const (
-	ObsidianMainnetNetworkID = 1719  // 0x6B7
-	ObsidianTestnetNetworkID = 1720  // 0x6B8
+	ObsidianMainnetNetworkID = 1719 // 0x6B7
+	ObsidianTestnetNetworkID = 1720 // 0x6B8
 )
 
 // Genesis block constants
 const (
-	GenesisGasLimit     uint64 = 30_000_000
-	GenesisDifficulty   uint64 = 131072
+	GenesisGasLimit   uint64 = 30_000_000
+	GenesisDifficulty uint64 = 131072
 )
 
 // P2P Network constants

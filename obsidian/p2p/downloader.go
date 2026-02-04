@@ -19,11 +19,11 @@ import (
 
 // Sync configuration
 const (
-	maxBlockFetch    = 128             // Maximum blocks to request at once
-	maxHeaderFetch   = 192             // Maximum headers to fetch per request
+	maxBlockFetch     = 128 // Maximum blocks to request at once
+	maxHeaderFetch    = 192 // Maximum headers to fetch per request
 	syncCheckInterval = 10 * time.Second
-	requestTimeout   = 15 * time.Second
-	maxSyncRetries   = 3
+	requestTimeout    = 15 * time.Second
+	maxSyncRetries    = 3
 )
 
 var (

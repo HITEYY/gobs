@@ -61,8 +61,8 @@ type BlockChain struct {
 	scope         event.SubscriptionScope
 
 	// Mutex
-	chainmu   sync.RWMutex
-	insertMu  sync.Mutex
+	chainmu  sync.RWMutex
+	insertMu sync.Mutex
 
 	// Running state
 	running int32
@@ -72,7 +72,7 @@ type BlockChain struct {
 
 // ChainConfig holds chain configuration
 type ChainConfig struct {
-	ChainID     *big.Int
+	ChainID        *big.Int
 	HomesteadBlock *big.Int
 	EIP150Block    *big.Int
 	EIP155Block    *big.Int
@@ -288,18 +288,18 @@ func (bc *BlockChain) WriteGenesis(genesis *Genesis) (*obstypes.ObsidianBlock, e
 
 	// Create genesis header
 	header := &obstypes.ObsidianHeader{
-		ParentHash: common.Hash{},
-		Coinbase:   genesis.Coinbase,
-		Root:       stateRoot,
-		TxHash:     obstypes.EmptyTxsHash,
+		ParentHash:  common.Hash{},
+		Coinbase:    genesis.Coinbase,
+		Root:        stateRoot,
+		TxHash:      obstypes.EmptyTxsHash,
 		ReceiptHash: obstypes.EmptyReceiptsHash,
-		Number:     big.NewInt(0),
-		GasLimit:   genesis.GasLimit,
-		GasUsed:    0,
-		Time:       genesis.Timestamp,
-		Extra:      genesis.ExtraData,
-		Difficulty: genesis.Difficulty,
-		Nonce:      obstypes.EncodeNonce(66),
+		Number:      big.NewInt(0),
+		GasLimit:    genesis.GasLimit,
+		GasUsed:     0,
+		Time:        genesis.Timestamp,
+		Extra:       genesis.ExtraData,
+		Difficulty:  genesis.Difficulty,
+		Nonce:       obstypes.EncodeNonce(66),
 	}
 
 	// Create genesis block
@@ -659,9 +659,9 @@ func (bc *BlockChain) applyTransaction(tx *obstypes.StealthTransaction, state *o
 
 	// Execute transaction
 	var (
-		gas     uint64
-		failed  = false
-		logs    []*obstypes.Log
+		gas    uint64
+		failed = false
+		logs   []*obstypes.Log
 	)
 
 	to := tx.To()
