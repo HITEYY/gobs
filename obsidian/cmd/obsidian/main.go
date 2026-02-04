@@ -782,7 +782,9 @@ func walletSend(ctx *cli.Context) error {
 	if password == "" {
 		fmt.Print("Enter password: ")
 		// In a real app, use a proper password prompt
-		fmt.Scanln(&password)
+		if _, err := fmt.Scanln(&password); err != nil {
+			return fmt.Errorf("failed to read password: %v", err)
+		}
 	}
 
 	signedTx, err := ks.SignTxWithPassword(from, password, tx, big.NewInt(1719))
@@ -860,7 +862,9 @@ func walletStealthSend(ctx *cli.Context) error {
 	password := ctx.String("password")
 	if password == "" {
 		fmt.Print("Enter password: ")
-		fmt.Scanln(&password)
+		if _, err := fmt.Scanln(&password); err != nil {
+			return fmt.Errorf("failed to read password: %v", err)
+		}
 	}
 
 	signedTx, err := ks.SignTxWithPassword(from, password, tx, big.NewInt(1719))
